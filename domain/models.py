@@ -53,3 +53,16 @@ class DetectionResult:
     hands: List[Hand]
     timestamp: float
 
+
+@dataclass
+class Bubble:
+    """Represents a floating bubble"""
+    x: float  # Normalized x position (0.0 to 1.0)
+    y: float  # Normalized y position (0.0 to 1.0)
+    radius: int  # Radius in pixels
+    velocity_x: float  # Horizontal velocity
+    velocity_y: float  # Vertical velocity
+    color: tuple  # BGR color tuple
+    id: int  # Unique identifier
+    points: int = 10  # Points when popped
+

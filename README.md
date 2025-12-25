@@ -9,6 +9,7 @@ A professional hand detection application built with MediaPipe Hands AI, followi
 - 21 hand landmarks per hand with visual connections
 - Handedness detection (Left/Right)
 - FPS counter and hand count display
+- **Interactive Bubble Game**: Pop floating bubbles by aiming with your index finger!
 - Clean architecture with separation of concerns
 
 ## Architecture
@@ -24,7 +25,9 @@ handdetection/
 │   ├── mediapipe_detector.py  # MediaPipe Hands implementation
 │   └── camera.py              # OpenCV camera implementation
 ├── presentation/     # UI and user interaction
-│   └── hand_detection_viewer.py  # OpenCV viewer
+│   ├── hand_detection_viewer.py  # Basic hand detection viewer
+│   ├── bubble_game.py            # Bubble game logic
+│   └── bubble_game_viewer.py     # Bubble game with hand detection
 ├── main.py           # Application entry point
 ├── requirements.txt  # Python dependencies
 └── README.md         # This file
@@ -65,13 +68,28 @@ python3 main.py
 python main.py
 ```
 
-The app will:
-1. Open your default camera
-2. Start detecting hands in real-time
-3. Display hand landmarks and connections
-4. Show FPS and hand count
+By default, the app runs in **Bubble Game mode** with **two separate windows**:
+1. **Camera Window**: Shows your camera feed with hand detection landmarks
+2. **Game Window**: Shows floating bubbles and a crosshair pointer
+3. The crosshair pointer follows your index finger position (from camera)
+4. Close your hand (make a fist) to shoot and pop bubbles
+5. Score points for each bubble popped
+6. Real-time score and statistics display
 
-Press `q` to quit the application.
+**Modes:**
+- `python3 main.py` or `python3 main.py game` - Bubble game mode (default)
+- `python3 main.py basic` - Basic hand detection mode (landmarks only)
+
+**Bubble Game Controls:**
+- **Aim**: Point your index finger - a crosshair follows your finger
+- **Shoot**: Close your hand (make a fist) to shoot at bubbles
+- Press `q` to quit
+- Press `r` to reset the score
+
+**Basic Mode:**
+- Displays hand landmarks and connections
+- Shows FPS and hand count
+- Press `q` to quit
 
 ## Requirements
 
@@ -87,6 +105,10 @@ Press `q` to quit the application.
 - **Detection Confidence**: 0.5 (configurable)
 - **Max Hands**: 2 (configurable)
 - **Frame Rate**: Optimized for real-time performance
+- **Bubble Game**: 
+  - Collision detection using index finger tip
+  - Dynamic bubble spawning and physics
+  - Score tracking and statistics
 
 ## License
 

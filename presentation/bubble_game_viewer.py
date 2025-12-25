@@ -332,23 +332,22 @@ class BubbleGameViewer:
     
     def run(self) -> None:
         """Run the bubble game with combined view in single window"""
-        # Initialize detector
-        if not self.detector.initialize():
-            print("Failed to initialize hand detector")
-            return
+        # Check if detector is already initialized
+        if not hasattr(self.detector, '_initialized') or not self.detector._initialized:
+            if not self.detector.initialize():
+                print("Failed to initialize hand detector")
+                return
         
-        # Open camera
-        if not self.camera.open():
-            print("Failed to open camera")
-            self.detector.release()
-            return
+        # Check if camera is already open
+        if not self.camera.is_opened():
+            if not self.camera.open():
+                print("Failed to open camera")
+                return
         
         # Get frame dimensions
         result = self.camera.read()
         if result is None:
             print("Failed to read from camera")
-            self.camera.release()
-            self.detector.release()
             return
         
         _, camera_frame = result
@@ -482,10 +481,8 @@ class BubbleGameViewer:
             print("\nInterrupted by user")
         
         finally:
-            # Cleanup
+            # Cleanup (don't release camera/detector here - app_flow handles it)
             cv2.destroyAllWindows()
-            self.camera.release()
-            self.detector.release()
             if self.game:
                 print(f"\nFinal Score: {self.game.score}")
                 print(f"Bubbles Popped: {self.game.bubbles_popped}")

@@ -19,13 +19,23 @@ class AppFlow:
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5
         )
+        self.camera: Optional[OpenCVCamera] = None
         self.player_name: Optional[str] = None
     
     def show_menu(self) -> str:
         """Show menu and get user selection"""
-        # Create new camera instance for menu
-        menu_camera = OpenCVCamera()
-        menu = MenuSystem(self.detector, menu_camera)
+        # Initialize camera once and reuse
+        if self.camera is None:
+            self.camera = OpenCVCamera()
+            if not self.camera.open():
+                return "exit"
+        
+        # Initialize detector once
+        if not hasattr(self.detector, '_initialized') or not self.detector._initialized:
+            if not self.detector.initialize():
+                return "exit"
+        
+        menu = MenuSystem(self.detector, self.camera)
         
         # Add menu items
         def start_game_action():
@@ -35,12 +45,8 @@ class AppFlow:
             return "exit"
         
         # Get frame to determine menu positions
-        if not menu_camera.open():
-            return "exit"
-        
-        result = menu_camera.read()
+        result = self.camera.read()
         if result is None:
-            menu_camera.release()
             return "exit"
         
         _, frame = result
@@ -54,20 +60,22 @@ class AppFlow:
         menu.add_menu_item("Start Game", start_game_action, (center_x, start_y))
         menu.add_menu_item("Exit", exit_action, (center_x, exit_y))
         
-        # Run menu
+        # Run menu (don't release camera)
         result = menu.run()
-        menu_camera.release()
         return result if result else "exit"
     
     def run_game(self):
         """Run the bubble game"""
         print("\nStarting game...\n")
         
-        # Create new camera instance for game
-        game_camera = OpenCVCamera()
-        game_viewer = BubbleGameViewer(self.detector, game_camera)
+        # Reuse existing camera and detector (already initialized)
+        if self.camera is None:
+            self.camera = OpenCVCamera()
+            if not self.camera.open():
+                return
+        
+        game_viewer = BubbleGameViewer(self.detector, self.camera)
         game_viewer.run()
-        game_camera.release()
     
     def run(self):
         """Run the complete application flow"""
@@ -91,6 +99,8 @@ class AppFlow:
             print(f"\nError: {e}")
         finally:
             # Cleanup
+            if self.camera:
+                self.camera.release()
             self.detector.release()
             print("\nThank you for playing!")
 

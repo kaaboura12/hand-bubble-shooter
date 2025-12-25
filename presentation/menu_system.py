@@ -247,14 +247,17 @@ class MenuSystem:
         Returns:
             Selected action result (e.g., "start_game") or None
         """
-        if not self.detector.initialize():
-            print("Failed to initialize hand detector")
-            return None
+        # Check if detector is already initialized
+        if not hasattr(self.detector, '_initialized') or not self.detector._initialized:
+            if not self.detector.initialize():
+                print("Failed to initialize hand detector")
+                return None
         
-        if not self.camera.open():
-            print("Failed to open camera")
-            self.detector.release()
-            return None
+        # Check if camera is already open
+        if not self.camera.is_opened():
+            if not self.camera.open():
+                print("Failed to open camera")
+                return None
         
         print("Menu system started. Point at menu items and close hand to select.")
         
@@ -280,6 +283,11 @@ class MenuSystem:
                 if selected_idx is not None:
                     item = self.menu_items[selected_idx]
                     print(f"Selected: {item.text}")
+                    # Close menu window smoothly
+                    cv2.destroyWindow(self.window_name)
+                    # Small delay for smooth transition
+                    import time
+                    time.sleep(0.05)
                     result = item.action()
                     if result:
                         return result
@@ -299,8 +307,8 @@ class MenuSystem:
             print("\nInterrupted by user")
         
         finally:
-            cv2.destroyAllWindows()
-            # Don't release camera here - it will be reused
+            # Don't destroy window or release camera - smooth transition
+            pass
         
         return None
 

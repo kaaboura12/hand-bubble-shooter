@@ -418,8 +418,8 @@ class BubbleGameViewer:
                     # Get index finger tip for pointer
                     finger_tip = self.gesture_detector.get_index_finger_tip(hand)
                     if finger_tip:
-                        # Update target position
-                        target_pointer_x = finger_tip.x
+                        # Update target position (flip X to match mirrored camera view)
+                        target_pointer_x = 1.0 - finger_tip.x  # Mirror X coordinate
                         target_pointer_y = finger_tip.y
                         
                         # Smooth interpolation for pointer movement
